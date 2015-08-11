@@ -1,5 +1,14 @@
 
 
+def memoize(fn):
+	known = dict()
+	def new_fn(*args):
+		key = tuple(args)
+		if key not in known:
+			known[key] = fn(*args)
+		return known[key]
+	return new_fn
+
 class WordDB(object):
 
 	def __init__(self):
@@ -109,7 +118,7 @@ class WordDB(object):
 					best_count = count
 					yield words
 
-
+	@memoize
 	def num_syllables(self, word):
 		# TODO: very janky currently
 		ans = 0
@@ -164,10 +173,10 @@ class WordDB(object):
 
 	def haiku(self, seed_word):
 		l1_max = 5
-		l2_max = 5
+		l2_max = 7
 		l3_max = 5
 
-		max_repeats = 5
+		max_repeats = 3
 		for (_ , l1_words) in self.make_syllable_chain(seed_word, l1_max, 0 ,  "backwards"):
 			l1_reps = 0
 			l1_lw = l1_words[-1]
@@ -198,16 +207,16 @@ class WordDB(object):
 
 	
 
+
+import cProfile, pstats, StringIO
+pr = cProfile.Profile()
+pr.enable()
+
+word = "Friend"
 db = WordDB()
-word = "Wet"
-rhymes = db.find_rhymes(word)
-nexts = db.find_next(word)
-prevs = db.find_previous(word)
-
 haikus = db.haiku(word)
-
 i=0
-max_i = 100
+max_i = 20
 buff = "***"
 for haiku in haikus:
 	i += 1
@@ -216,3 +225,10 @@ for haiku in haikus:
 	print(haiku)
 	if i == max_i:
 		break;
+
+pr.disable()
+s = StringIO.StringIO()
+sortby = 'cumulative'
+ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+ps.print_stats()
+print s.getvalue()
