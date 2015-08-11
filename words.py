@@ -84,12 +84,15 @@ class WordDB(object):
 	def rhyme_sentence(self, word, max_syllables):
 		rhymes = self.find_rhymes(word);
 		ans = list()
+		best_count = 0
 		for rhyme in rhymes:
-			chains = self.make_syllable_chain(rhyme, max_syllables, "backwards")
+			chains = self.make_syllable_chain(rhyme, max_syllables, 0, "backwards")
 			if not chains:
 				continue
 			for (count, words) in chains:
-				yield words
+				if count > best_count:
+					best_count = count
+					yield words
 
 
 	def num_syllables(self, word):
@@ -102,7 +105,8 @@ class WordDB(object):
 					ans += 1
 		return ans
 
-	def make_syllable_chain(self, seed_word, max_syllables=5, direction="forward"):
+	def make_syllable_chain(self, seed_word, max_syllables=5, best_count=0, direction="forward"):
+		old_best_count = best_count
 		seed_word = seed_word.upper()
 		curr_syllables = self.num_syllables(seed_word)
 		if curr_syllables == 0:
@@ -128,7 +132,7 @@ class WordDB(object):
 			else:
 				next_seed = word1
 
-			chains = self.make_syllable_chain(next_seed, new_syllables, direction)
+			chains = self.make_syllable_chain(next_seed, new_syllables, old_best_count, direction)
 
 			if chains:
 				for chain in chains:
@@ -142,19 +146,22 @@ class WordDB(object):
 					else:
 						chain_words.insert(len(chain_words), seed_word)
 					chain_count += curr_count
-					yield (chain_count, chain_words)
+
+					if chain_count >= best_count:
+						best_count = chain_count
+						yield (chain_count, chain_words)
 
 	def haiku(self, seed_word):
 		l1_max = 5
 		l2_max = 7
 		l3_max = 5
 
-		max_repeats = 4
-		for (_ , l1_words) in self.make_syllable_chain(seed_word, l1_max, "forward"):
+		max_repeats = 5
+		for (_ , l1_words) in self.make_syllable_chain(seed_word, l1_max, 0 ,  "backwards"):
 			l1_reps = 0
 			l1_lw = l1_words[-1]
 			l1_lw_syllables = self.num_syllables(l1_lw)
-			l2_chain = self.make_syllable_chain(l1_lw, l2_max + l1_lw_syllables, "forward")
+			l2_chain = self.make_syllable_chain(l1_lw, l2_max + l1_lw_syllables, 0, "forward")
 			if not l2_chain:
 				continue
 			for (_ , l2_words) in l2_chain:
@@ -181,7 +188,7 @@ class WordDB(object):
 	
 
 db = WordDB()
-word = "Cock"
+word = "Harmony"
 rhymes = db.find_rhymes(word)
 nexts = db.find_next(word)
 prevs = db.find_previous(word)
@@ -189,7 +196,7 @@ prevs = db.find_previous(word)
 haikus = db.haiku(word)
 
 i=0
-max_i = 10
+max_i = 100
 buff = "***"
 for haiku in haikus:
 	i += 1
