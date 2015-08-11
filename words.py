@@ -5,6 +5,49 @@ class WordDB(object):
 	def __init__(self):
 		self.phonetic = self.load_phonetic_dict("/home/aryan/code/freestyle/db/cmudict-0.7b.txt") # { UPPER CASE WORD => [ LIST OF SOUNDS ]}
 		self.word_pairs = self.load_2_grams("/home/aryan/code/freestyle/db/count_2w.txt") # { (WORD 1, WORD 2) => COUNT }
+		self.rhyme_dict = self.create_rhyme_dict()
+		self.prevs, self.nexts = self.create_prevs_and_nexts()
+
+	def create_rhyme_dict(self):
+		phonetic = self.phonetic
+
+		ans = dict()
+
+		for word in phonetic:
+			last_syll = self.last_syllable(word)
+			if last_syll not in ans:
+				ans[last_syll] = list()
+			ans[last_syll].append(word)
+		return ans
+
+	def create_prevs_and_nexts(self):
+		word_pairs = self.word_pairs
+		nexts = dict()
+		prevs = dict()
+		for (word1, word2) in word_pairs:
+			count = word_pairs[(word1, word2)]
+			if word1 not in nexts:
+				nexts[word1] = list()
+			if word2 not in prevs:
+				prevs[word2] = list()
+			nexts[word1].append( (word2, count) )
+			prevs[word2].append( (word1, count) )
+		return prevs, nexts
+
+	def last_syllable(self, word):
+		
+		if word not in self.phonetic:
+			return None
+
+		sounds = self.phonetic[word]
+		last_syll = 0
+		for i in range(len(sounds)):
+			sound = sounds[i]
+			if sound[-1].isdigit():
+				last_syll = i
+
+		last_sounds = sounds[last_syll:]
+		return tuple(last_sounds)
 
 	def load_2_grams(self, path):
 		ans = dict()
@@ -33,53 +76,25 @@ class WordDB(object):
 	def rhymes(self, word1, word2):
 		if word1 == word2:
 			return False
-		w1_sounds = self.phonetic[word1]
-		w2_sounds = self.phonetic[word2]
-
-		w1_last_syll = 0
-		for i in range(len(w1_sounds)):
-			w1_sound = w1_sounds[i]
-			if w1_sound[-1].isdigit():
-				w1_last_syll = i
-
-		w1_last_sounds = w1_sounds[w1_last_syll:]
-
-		if len(w2_sounds) < len(w1_last_sounds):
-			return False
-
-		for i in range(len(w1_last_sounds)):
-			offset = len(w2_sounds) - len(w1_last_sounds)
-			w2_index = i + offset
-			if w2_sounds[w2_index] != w1_last_sounds[i]:
-				return False
-		return True
+		return self.last_syllable(word1) == self.last_syllable(word2)
 
 	def find_rhymes(self, word):
 		word = word.upper()
 
-		def filter_fn(other_word):
-			return self.rhymes(word, other_word)
-
-		ans = filter(filter_fn, self.phonetic.keys())
-		return ans
+		last_syll = self.last_syllable(word)
+		return self.rhyme_dict[last_syll]
 
 	def find_next(self, word):
 		word = word.upper()
-		def filter_fn( (word1, word2) ):
-			return word1 == word
-		all_pairs = self.word_pairs
-		new_keys = filter(filter_fn, all_pairs.keys())
-		new_pairs = { k : all_pairs[k] for k in new_keys}
-		return new_pairs
+		if word in self.nexts:
+			return self.nexts[word]
+		return list()
 
 	def find_previous(self, word):
 		word = word.upper()
-		def filter_fn( (word1, word2) ):
-			return word2 == word
-		all_pairs = self.word_pairs
-		new_keys = filter(filter_fn, all_pairs.keys())
-		new_pairs = { k : all_pairs[k] for k in new_keys}
-		return new_pairs
+		if word in self.prevs:
+			return self.prevs[word]
+		return list()
 
 	def rhyme_sentence(self, word, max_syllables):
 		rhymes = self.find_rhymes(word);
@@ -122,15 +137,7 @@ class WordDB(object):
 		else:
 			nexts = self.find_previous(seed_word)
 
-		max_index = min(len(nexts)-1, 5)
-		nexts = {nexts.keys()[i] : nexts[nexts.keys()[i]] for i in range(max_index)}
-		for (word1, word2) in nexts.keys():
-			curr_count = nexts[(word1, word2)]
-
-			if direction == "forward":
-				next_seed = word2
-			else:
-				next_seed = word1
+		for (next_seed, curr_count) in nexts:
 
 			chains = self.make_syllable_chain(next_seed, new_syllables, old_best_count, direction)
 
@@ -140,20 +147,24 @@ class WordDB(object):
 					chain_count = chain[0]
 					chain_words = chain[1]
 
+					
+
 
 					if direction == "forward":
 						chain_words.insert(0, seed_word)
 					else:
 						chain_words.insert(len(chain_words), seed_word)
-					chain_count += curr_count
 
-					if chain_count >= best_count:
-						best_count = chain_count
+					chain_count += curr_count
+					weighted_count = chain_count / len(chain_words)**5
+
+					if weighted_count >= best_count:
+						best_count = weighted_count
 						yield (chain_count, chain_words)
 
 	def haiku(self, seed_word):
 		l1_max = 5
-		l2_max = 7
+		l2_max = 5
 		l3_max = 5
 
 		max_repeats = 5
@@ -188,7 +199,7 @@ class WordDB(object):
 	
 
 db = WordDB()
-word = "Harmony"
+word = "Wet"
 rhymes = db.find_rhymes(word)
 nexts = db.find_next(word)
 prevs = db.find_previous(word)
