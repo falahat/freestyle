@@ -30,13 +30,35 @@ class WordDB(object):
 					ans[word] = sounds
 		return ans
 
+	def rhymes(self, word1, word2):
+		if word1 == word2:
+			return False
+		w1_sounds = self.phonetic[word1]
+		w2_sounds = self.phonetic[word2]
+
+		w1_last_syll = 0
+		for i in range(len(w1_sounds)):
+			w1_sound = w1_sounds[i]
+			if w1_sound[-1].isdigit():
+				w1_last_syll = i
+
+		w1_last_sounds = w1_sounds[w1_last_syll:]
+
+		if len(w2_sounds) < len(w1_last_sounds):
+			return False
+
+		for i in range(len(w1_last_sounds)):
+			offset = len(w2_sounds) - len(w1_last_sounds)
+			w2_index = i + offset
+			if w2_sounds[w2_index] != w1_last_sounds[i]:
+				return False
+		return True
+
 	def find_rhymes(self, word):
 		word = word.upper()
-		word_sounds = self.phonetic[word]
 
 		def filter_fn(other_word):
-			other_sounds = self.phonetic[other_word]
-			return other_sounds[-1] == word_sounds[-1] and other_word != word
+			return self.rhymes(word, other_word)
 
 		ans = filter(filter_fn, self.phonetic.keys())
 		return ans
@@ -61,18 +83,14 @@ class WordDB(object):
 
 	def rhyme_sentence(self, word, max_syllables):
 		rhymes = self.find_rhymes(word);
-		max_i = min(len(rhymes) - 1, 5)
-		rhymes = rhymes[:max_i];
 		ans = list()
 		for rhyme in rhymes:
 			chains = self.make_syllable_chain(rhyme, max_syllables, "backwards")
 			if not chains:
 				continue
-			max_i = min(len(chains) - 1, 5)
-			chains = sorted(chains, key=lambda (count, words): count)[:max_i]
 			for (count, words) in chains:
-				ans.append(words)
-		return ans
+				yield words
+
 
 	def num_syllables(self, word):
 		# TODO: very janky currently
@@ -88,12 +106,12 @@ class WordDB(object):
 		seed_word = seed_word.upper()
 		curr_syllables = self.num_syllables(seed_word)
 		if curr_syllables == 0:
-			return False
+			return
 		new_syllables = max_syllables - curr_syllables
 		if new_syllables == 0:
-			return [(0, [seed_word])]
+			yield (0, [seed_word])
 		if new_syllables < 0:
-			return False
+			return
 
 		if direction == "forward":
 			nexts = self.find_next(seed_word)
@@ -102,7 +120,6 @@ class WordDB(object):
 
 		max_index = min(len(nexts)-1, 5)
 		nexts = {nexts.keys()[i] : nexts[nexts.keys()[i]] for i in range(max_index)}
-		ans = list()
 		for (word1, word2) in nexts.keys():
 			curr_count = nexts[(word1, word2)]
 
@@ -113,46 +130,71 @@ class WordDB(object):
 
 			chains = self.make_syllable_chain(next_seed, new_syllables, direction)
 
-			if chains and len(chains) > 0:
-				for (chain_count, chain_words) in chains:
+			if chains:
+				for chain in chains:
+
+					chain_count = chain[0]
+					chain_words = chain[1]
+
 
 					if direction == "forward":
 						chain_words.insert(0, seed_word)
 					else:
 						chain_words.insert(len(chain_words), seed_word)
 					chain_count += curr_count
-					ans.append( (chain_count, chain_words) )
-		if len(ans) == 0:
-			return False
-		else:
-			ans = sorted(ans, key=lambda (chain_count, words): chain_count)
-			return ans
+					yield (chain_count, chain_words)
 
 	def haiku(self, seed_word):
 		l1_max = 5
 		l2_max = 7
 		l3_max = 5
+
+		max_repeats = 4
 		for (_ , l1_words) in self.make_syllable_chain(seed_word, l1_max, "forward"):
+			l1_reps = 0
 			l1_lw = l1_words[-1]
-			for l2_words in self.rhyme_sentence(l1_lw, l2_max):
+			l1_lw_syllables = self.num_syllables(l1_lw)
+			l2_chain = self.make_syllable_chain(l1_lw, l2_max + l1_lw_syllables, "forward")
+			if not l2_chain:
+				continue
+			for (_ , l2_words) in l2_chain:
+				l1_reps += 1
+				if l1_reps >= max_repeats:
+					break;
+				l2_reps = 0
+				l2_words = l2_words[1:]
 				l2_lw = l2_words[-1]
-				for l3_words in self.rhyme_sentence(l2_lw, l3_max):
+				for l3_words in self.rhyme_sentence(l1_lw, l3_max):
+					l2_reps += 1
+					if l2_reps >= max_repeats:
+						break;
+
 					l3_lw = l3_words[-1]
 					l1 = " ".join(l1_words)
 					l2 = " ".join(l2_words)
 					l3 = " ".join(l3_words)
 					header = "A Robot Haiku :) "
-					ans = "{} \n {} \n {} \n {}".format(header, l1, l2, l3)
+					ans = "\\\\ {} \n\t{} \n\t{} \n\t{}".format(header, l1, l2, l3)
+					config = "l1_lw: {}".format(l1_lw)
 					yield ans
 
 	
 
 db = WordDB()
-word = "hello"
+word = "Cock"
 rhymes = db.find_rhymes(word)
 nexts = db.find_next(word)
 prevs = db.find_previous(word)
 
-for haiku in db.haiku(word):
+haikus = db.haiku(word)
+
+i=0
+max_i = 10
+buff = "***"
+for haiku in haikus:
+	i += 1
+	print(buff*20)
+	print("POEM # {} # POEM".format(i))
 	print(haiku)
-	print("****"*20)
+	if i == max_i:
+		break;
