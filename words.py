@@ -87,11 +87,21 @@ class WordDB(object):
 			return False
 		return self.last_syllable(word1) == self.last_syllable(word2)
 
-	def find_rhymes(self, word):
-		word = word.upper()
+	def find_rhymes(self, words):
+		if type(words) is str:
+			words = [words]
 
+		words = [a.upper() for a in words]
+
+		word = words[0]
 		last_syll = self.last_syllable(word)
-		return self.rhyme_dict[last_syll]
+		rhymes = self.rhyme_dict[last_syll]
+		for word in words:
+			if word not in rhymes:
+				return list()
+			rhymes.remove(word)
+
+		return rhymes
 
 	def find_next(self, word):
 		word = word.upper()
@@ -105,10 +115,14 @@ class WordDB(object):
 			return self.prevs[word]
 		return list()
 
-	def rhyme_sentence(self, word, max_syllables):
-		rhymes = self.find_rhymes(word);
+	def rhyme_sentence(self, words, max_syllables):
+		
 		ans = list()
 		best_count = 0
+		if type(words) is str:
+			words = [words]
+		rhymes = self.find_rhymes(words);
+		print(rhymes)
 		for rhyme in rhymes:
 			chains = self.make_syllable_chain(rhyme, max_syllables, 0, "backwards")
 			if not chains:
@@ -176,22 +190,19 @@ class WordDB(object):
 		l2_max = 7
 		l3_max = 5
 
-		max_repeats = 3
+		max_repeats = 4
 		for (_ , l1_words) in self.make_syllable_chain(seed_word, l1_max, 0 ,  "backwards"):
 			l1_reps = 0
 			l1_lw = l1_words[-1]
 			l1_lw_syllables = self.num_syllables(l1_lw)
-			l2_chain = self.make_syllable_chain(l1_lw, l2_max + l1_lw_syllables, 0, "forward")
-			if not l2_chain:
-				continue
-			for (_ , l2_words) in l2_chain:
+			for l2_words in self.rhyme_sentence(l1_lw, l2_max):
 				l1_reps += 1
 				if l1_reps >= max_repeats:
 					break;
 				l2_reps = 0
 				l2_words = l2_words[1:]
 				l2_lw = l2_words[-1]
-				for l3_words in self.rhyme_sentence(l1_lw, l3_max):
+				for l3_words in self.rhyme_sentence([l2_lw], l3_max):
 					l2_reps += 1
 					if l2_reps >= max_repeats:
 						break;
@@ -212,11 +223,11 @@ import cProfile, pstats, StringIO
 pr = cProfile.Profile()
 pr.enable()
 
-word = "Friend"
+word = "startup"
 db = WordDB()
 haikus = db.haiku(word)
 i=0
-max_i = 20
+max_i = 100
 buff = "***"
 for haiku in haikus:
 	i += 1
