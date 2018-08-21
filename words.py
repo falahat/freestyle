@@ -21,8 +21,12 @@ for test_word in test_words:
 	nexts = ngramDB.find_next(test_word) 
 	print("5 Nexts", nexts[:min(5, len(nexts))])
 
-# Let's create a sentence w/ 5 syllables that rhymes with "Friend"
-NUM_SYLLABLES = 5
+# Let's create a sentence w/ 5 syllables that rhymes with "EVERLASTING"
+NUM_SYLLABLES = 3
 RHYME_WORD = "FRIEND"
+ROOT_NODE = graph.WordNode(RHYME_WORD, NUM_SYLLABLES)
 
-word_graph = graph.WordGraph(phoneticDB, ngramDB)
+word_graph = graph.WordGraph(phoneticDB, ngramDB, ROOT_NODE)
+
+## General Graph Info
+print("There are {} vertices in the word graph".format(len(word_graph.vertices)))
