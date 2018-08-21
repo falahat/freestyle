@@ -116,10 +116,14 @@ class PhoneticDictionary(object):
 
 		return rhymes
 
+
 class NGramDB(object):
 	def __init__(self, two_gram_path=TWO_GRAM_PATH, edge_trim_ratio=0, load_instantly=True):
 		self.two_gram_path = two_gram_path
 		self.edge_trim_ratio = edge_trim_ratio
+
+		self.word_pairs = None
+		self.prevs, self.nexts = None, None
 		if load_instantly:
 			self.load()
 
@@ -141,17 +145,30 @@ class NGramDB(object):
 		return prevs, nexts
 
 	def load_2_grams(self, path):
-		ans = dict()
+		result = dict()
+		total = 0
+		counts = dict()
+
+		# Load the file
 		with open(path) as fp:
 			for line in fp:
 				entries = line.upper().split()
 				if len(entries) == 3:
 					word1, word2, count = entries
 					count = int(count)
-					if (word1, word2) not in ans:
-						ans[(word1, word2)] = 0
-					ans[(word1, word2)] += count
-		return ans
+					if (word1, word2) not in counts:
+						counts[(word1, word2)] = 0
+					counts[(word1, word2)] += count
+					total += count
+
+		# Compute percentage and trim edges
+		total = float(total)
+		counts =  sorted(counts.items(), key=lambda (w1w2, count): count)
+		trim_idx = (1-self.edge_trim_ratio)*len(counts) # Trim the last ratio*(total rows) rows
+		counts = counts[:trim_idx] 
+		for word1_word2, count in counts:
+			result[word1_word2] = count / total
+		return result
 
 	def find_next(self, word):
 		word = word.upper()
