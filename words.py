@@ -1,4 +1,5 @@
 import loader
+import graph
 
 phoneticDB = loader.PhoneticDB()
 ngramDB = loader.NGramDB(edge_trim_ratio=0.5)
@@ -19,3 +20,9 @@ for test_word in test_words:
 	print("5 Rhymes", rhymes[:min(5, len(rhymes))])
 	nexts = ngramDB.find_next(test_word) 
 	print("5 Nexts", nexts[:min(5, len(nexts))])
+
+# Let's create a sentence w/ 5 syllables that rhymes with "Friend"
+NUM_SYLLABLES = 5
+RHYME_WORD = "FRIEND"
+
+word_graph = graph.WordGraph(phoneticDB, ngramDB)
