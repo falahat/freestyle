@@ -77,25 +77,33 @@ class TargetedGraph(WordGraph):
 			if not self.is_node_valid(curr_node):
 				continue # Unfortunately, we have to ignore the next words, even if we do have phonetic entries for them
 			if curr_node.syllables_left == self.num_desired_syllables:
-				print("\n\nWE FOUND ONE!\n\n")
-				self.trace_to_dest(curr_node)
+				yield self.trace_to_dest(curr_node)
 
 			num_syllables_left = curr_node.syllables_left + self.phonetic_db.num_syllables[curr_node.word]
-			for prev_word, edge_probability in self.ngram_db.find_previous(curr_node.word):
-				prev_node = WordNode(prev_word, num_syllables_left)
-				if not self.is_node_valid(prev_node):
-					continue
-				possible_dist = self.distance_from_dest.get(curr_node, MAX_DISTANCE) + (1 - edge_probability)
+			for prev_node, possible_dist in self.previous_edges(curr_node):
 				if self.distance_from_dest.get(prev_node, MAX_DISTANCE) > possible_dist:
 					self.distance_from_dest[prev_node] = possible_dist
 					self.next_nodes[prev_node] = curr_node
 				to_visit.add(prev_node)
-				
+	
+	def previous_edges(self, node):			
+		num_syllables_left = node.syllables_left + self.phonetic_db.num_syllables[node.word]
+		for prev_word, edge_probability in sorted(self.ngram_db.find_previous(node.word), key=lambda (w,p) : p):
+			prev_node = WordNode(prev_word, num_syllables_left)
+			if not self.is_node_valid(prev_node):
+				continue
+			possible_dist = self.distance_from_dest.get(node, MAX_DISTANCE) + (1 - edge_probability)
+			yield prev_node, possible_dist
+
 	def trace_to_dest(self, start_node):
-		if start_node is None:
-			return
-		print(start_node.word)
-		self.trace_to_dest(self.next_nodes.get(start_node, None))
+		print("\n")
+		result = []
+		curr_node = start_node
+		while curr_node is not None:
+			result.append(curr_node.word)
+			curr_node = self.next_nodes.get(curr_node, None)
+		print(" ".join(result))
+		return result
 
 	def is_node_valid(self, node):
 		if super(TargetedGraph, self).is_node_valid(node):

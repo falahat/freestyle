@@ -27,7 +27,15 @@ RHYME_WORD = "MAY"
 DESTINATION_NODES = set([graph.WordNode(word, 0) for word in phoneticDB.find_rhymes(RHYME_WORD)])
 print(DESTINATION_NODES)
 word_graph = graph.TargetedGraph(phoneticDB, ngramDB, NUM_SYLLABLES, DESTINATION_NODES)
-word_graph.populate_graph()
 
+SAVE_FREQ = 1000
+with open("examples/targeted.txt", "w") as fp:
+	poems = []
+	for word_list in word_graph.populate_graph():
+		poem = " ".join(word_list).lower()
+		poems.append(poem)
+		if len(poems) % SAVE_FREQ == 0:
+			print("Saving Poems")
+			fp.write("\n".join(poems))
 ## General Graph Info
 print("There are {} vertices in the word graph".format(len(word_graph.vertices)))
