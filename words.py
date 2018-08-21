@@ -1,6 +1,6 @@
 import loader
 
-phoneticDB = loader.PhoneticDictionary()
+phoneticDB = loader.PhoneticDB()
 ngramDB = loader.NGramDB(edge_trim_ratio=0.5)
 
 ## General Info

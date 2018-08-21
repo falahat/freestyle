@@ -3,7 +3,7 @@ CMU_PHONES_PATH = "./db/cmudict-0.7b.phones.txt"
 TWO_GRAM_PATH = "./db/count_2w.txt"
 ACCEPT_NEAR_RHYME = True
 
-class PhoneticDictionary(object):
+class PhoneticDB(object):
 	def __init__(self, dict_path=CMU_DICTIONARY_PATH, phones_path=CMU_PHONES_PATH, load_instantly=True):
 		self.dict_path = dict_path;
 		self.phones_path = phones_path
