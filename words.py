@@ -2,7 +2,7 @@ import loader
 import graph
 
 phoneticDB = loader.PhoneticDB()
-ngramDB = loader.NGramDB(edge_trim_ratio=0.5)
+ngramDB = loader.NGramDB(edge_trim_ratio=0.9)
 
 ## General Info
 print("There are {} words in the phonetic dictionary".format(len(phoneticDB.phones.keys())))
@@ -23,10 +23,12 @@ for test_word in test_words:
 
 # Let's create a sentence w/ 5 syllables that rhymes with "EVERLASTING"
 NUM_SYLLABLES = 3
-RHYME_WORD = "FRIEND"
+RHYME_WORD = "DUDE"
+ROOT_WORD = "YOU"
 ROOT_NODE = graph.WordNode(RHYME_WORD, NUM_SYLLABLES)
 
-word_graph = graph.WordGraph(phoneticDB, ngramDB, ROOT_NODE)
+word_graph = graph.RhymeTargetedGraph(phoneticDB, ngramDB, ROOT_NODE, RHYME_WORD)
+word_graph.populate_graph()
 
 ## General Graph Info
 print("There are {} vertices in the word graph".format(len(word_graph.vertices)))
