@@ -93,27 +93,16 @@ class PhoneticDictionary(object):
 		return num_syllables
 
 	### Util Methods
-	# TODO: Move these elsewhere?
 
 	def rhymes(self, word1, word2):
 		if word1 == word2: # Because it's cheating
 			return False
 		return self.extract_rhyme(word1) == self.extract_rhyme(word2)
 
-	def find_rhymes(self, words):
-		if type(words) is str:
-			words = [words]
-
-		words = [a.upper() for a in words]
-
-		word = words[0]
-		last_syll = self.last_syllable(word)
-		rhymes = self.rhyme_dict[last_syll]
-		for word in words:
-			if word not in rhymes:
-				return list()
-			rhymes.remove(word)
-
+	def find_rhymes(self, word):
+		word = word.upper()
+		rhyme_syll = self.extract_rhyme(word)
+		rhymes = self.rhyme_index[rhyme_syll]
 		return rhymes
 
 
