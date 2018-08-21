@@ -2,7 +2,7 @@ import loader
 import graph
 
 phoneticDB = loader.PhoneticDB()
-ngramDB = loader.NGramDB(edge_trim_ratio=0.9)
+ngramDB = loader.NGramDB(edge_trim_ratio=0.8)
 
 ## General Info
 print("There are {} words in the phonetic dictionary".format(len(phoneticDB.phones.keys())))
@@ -21,13 +21,12 @@ for test_word in test_words:
 	nexts = ngramDB.find_next(test_word) 
 	print("5 Nexts", nexts[:min(5, len(nexts))])
 
-START_WORD = "HELLO"
+# START_WORD = "HELLO"
 NUM_SYLLABLES = 5
 RHYME_WORD = "MAY"
 DESTINATION_NODES = set([graph.WordNode(word, 0) for word in phoneticDB.find_rhymes(RHYME_WORD)])
 print(DESTINATION_NODES)
-START_NODES = [graph.WordNode(START_WORD, NUM_SYLLABLES)]
-word_graph = graph.TargetedGraph(phoneticDB, ngramDB, START_NODES, DESTINATION_NODES)
+word_graph = graph.TargetedGraph(phoneticDB, ngramDB, NUM_SYLLABLES, DESTINATION_NODES)
 word_graph.populate_graph()
 
 ## General Graph Info

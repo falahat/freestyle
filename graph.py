@@ -28,7 +28,7 @@ class WordGraphLazy(object):
 		return MAX_DISTANCE
 	
 	def is_node_valid(self, node):
-		return node.word in self.phonetic_db.phones and node.syllables_left >= 0;
+		return node.word in self.phonetic_db.phones and node.word in self.phonetic_db.num_syllables and node.syllables_left >= 0;
 
 class WordGraph(WordGraphLazy):
 	def __init__(self, phonetic_db, ngram_db, root_node):
@@ -49,6 +49,7 @@ class WordGraph(WordGraphLazy):
 			to_visit.update(next_nodes)
 	
 	def distance(self, node1, node2):
+		# TODO: Hella ineffecient
 		children = self.children(node1)
 		word2 = node2.word
 		for word, count in children:
@@ -61,16 +62,47 @@ class WordGraph(WordGraphLazy):
 		pass;
 
 class TargetedGraph(WordGraph):
-	def __init__(self, phonetic_db, ngram_db, start_nodes, destination_nodes):
-		super(TargetedGraph, self).__init__(phonetic_db, ngram_db, start_nodes[0])
-		self.start_nodes = start_nodes
+	def __init__(self, phonetic_db, ngram_db, num_desired_syllables, destination_nodes):
+		super(TargetedGraph, self).__init__(phonetic_db, ngram_db, None)
+		self.num_desired_syllables = num_desired_syllables
 		self.destination_nodes = destination_nodes
+		self.distance_from_dest = {node : 0 for node in destination_nodes}
+		self.next_nodes = dict()
 	
+	def populate_graph(self):
+		# TODO: Extract this out to at least 3 different helper methods
+		to_visit = set(self.destination_nodes)
+		while (to_visit):
+			curr_node = to_visit.pop()
+			if not self.is_node_valid(curr_node):
+				continue # Unfortunately, we have to ignore the next words, even if we do have phonetic entries for them
+			if curr_node.syllables_left == self.num_desired_syllables:
+				print("\n\nWE FOUND ONE!\n\n")
+				self.trace_to_dest(curr_node)
+
+			num_syllables_left = curr_node.syllables_left + self.phonetic_db.num_syllables[curr_node.word]
+			for prev_word, edge_probability in self.ngram_db.find_previous(curr_node.word):
+				prev_node = WordNode(prev_word, num_syllables_left)
+				if not self.is_node_valid(prev_node):
+					continue
+				possible_dist = self.distance_from_dest.get(curr_node, MAX_DISTANCE) + (1 - edge_probability)
+				if self.distance_from_dest.get(prev_node, MAX_DISTANCE) > possible_dist:
+					self.distance_from_dest[prev_node] = possible_dist
+					self.next_nodes[prev_node] = curr_node
+				to_visit.add(prev_node)
+				
+	def trace_to_dest(self, start_node):
+		if start_node is None:
+			return
+		print(start_node.word)
+		self.trace_to_dest(self.next_nodes.get(start_node, None))
+
 	def is_node_valid(self, node):
 		if super(TargetedGraph, self).is_node_valid(node):
 			if node.syllables_left == 0:
-				return node in destination_nodes
-		return True
+				return node in self.destination_nodes
+			return True
+		return False
 
 class WordNode(object):
 	def __init__(self, word, syllables_left):
@@ -85,3 +117,6 @@ class WordNode(object):
 
 	def __eq__(self, other):
 		return other.word == self.word and other.syllables_left == self.syllables_left
+
+	def __hash__(self):
+		return hash(str(self))
