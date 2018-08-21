@@ -41,7 +41,6 @@ class WordGraph(WordGraphLazy):
 		to_visit = {self.root_node}
 		while (to_visit):
 			curr_node = to_visit.pop()
-			print(len(to_visit), len(self.vertices))
 			if not self.is_node_valid(curr_node):
 				continue # Unfortunately, we have to ignore the next words, even if we do have phonetic entries for them
 			next_nodes = self.children(curr_node)
@@ -62,11 +61,13 @@ class WordGraph(WordGraphLazy):
 		pass;
 
 class TargetedGraph(WordGraph):
-	def __init__(self, phonetic_db, ngram_db, num_desired_syllables, destination_nodes):
-		super(TargetedGraph, self).__init__(phonetic_db, ngram_db, None)
-		self.num_desired_syllables = num_desired_syllables
-		self.destination_nodes = destination_nodes
-		self.distance_from_dest = {node : 0 for node in destination_nodes}
+	def __init__(self, phonetic_db, ngram_db, desired_num_syllables, rhyme_word):
+		super(TargetedGraph, self).__init__(phonetic_db, ngram_db, WordNode("[{} : {}]".format(rhyme_word, desired_num_syllables), desired_num_syllables))
+		self.desired_num_syllables = desired_num_syllables
+		self.rhyme_word = rhyme_word
+		self.destination_nodes = set([WordNode(word, 0) for word in phonetic_db.find_rhymes(rhyme_word)])
+		print(self.destination_nodes)
+		self.distance_from_dest = {node : 0 for node in self.destination_nodes}
 		self.next_nodes = dict()
 	
 	def populate_graph(self):
@@ -76,28 +77,37 @@ class TargetedGraph(WordGraph):
 			curr_node = to_visit.pop()
 			if not self.is_node_valid(curr_node):
 				continue # Unfortunately, we have to ignore the next words, even if we do have phonetic entries for them
-			if curr_node.syllables_left == self.num_desired_syllables:
-				yield self.trace_to_dest(curr_node)
 
-			num_syllables_left = curr_node.syllables_left + self.phonetic_db.num_syllables[curr_node.word]
 			for prev_node, possible_dist in self.previous_edges(curr_node):
+				if prev_node == self.root_node:
+					yield self.trace_to_dest(curr_node)
+				# TODO: root node is not updated
 				if self.distance_from_dest.get(prev_node, MAX_DISTANCE) > possible_dist:
 					self.distance_from_dest[prev_node] = possible_dist
 					self.next_nodes[prev_node] = curr_node
 				to_visit.add(prev_node)
 	
-	def previous_edges(self, node):			
+	def previous_edges(self, node):
+		if node == self.root_node:
+			raise StopIteration
 		num_syllables_left = node.syllables_left + self.phonetic_db.num_syllables[node.word]
-		for prev_word, edge_probability in sorted(self.ngram_db.find_previous(node.word), key=lambda (w,p) : p):
-			prev_node = WordNode(prev_word, num_syllables_left)
-			if not self.is_node_valid(prev_node):
-				continue
-			possible_dist = self.distance_from_dest.get(node, MAX_DISTANCE) + (1 - edge_probability)
-			yield prev_node, possible_dist
+		if num_syllables_left > self.desired_num_syllables:
+			raise StopIteration
+		elif num_syllables_left == self.desired_num_syllables:
+			yield self.root_node, 0
+		else:
+			prev_sorted = sorted(self.ngram_db.find_previous(node.word), key=lambda (w,p) : p)
+			for prev_word, edge_probability in prev_sorted:
+				prev_node = WordNode(prev_word, num_syllables_left)
+				if not self.is_node_valid(prev_node):
+					continue
+				possible_dist = self.distance_from_dest.get(node, MAX_DISTANCE) + (1 - edge_probability)
+				yield prev_node, possible_dist
 
 	def trace_to_dest(self, start_node):
 		print("\n")
-		result = []
+		print(start_node)
+		result = [self.root_node.word]
 		curr_node = start_node
 		while curr_node is not None:
 			result.append(curr_node.word)
@@ -106,10 +116,18 @@ class TargetedGraph(WordGraph):
 		return result
 
 	def is_node_valid(self, node):
+		if node == self.root_node:
+			return True
+
 		if super(TargetedGraph, self).is_node_valid(node):
 			if node.syllables_left == 0:
+				# return True
 				return node in self.destination_nodes
-			return True
+			elif node.syllables_left >= self.desired_num_syllables:
+				# We know this isn't the root node, so even if it is == desired_num_syllables, it is invalid
+				return False
+			else:
+				return True
 		return False
 
 class WordNode(object):
