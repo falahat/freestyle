@@ -2,7 +2,7 @@ import loader
 import graph
 
 phoneticDB = loader.PhoneticDB()
-ngramDB = loader.NGramDB(edge_trim_ratio=0.8)
+ngramDB = loader.NGramDB(edge_trim_ratio=0.5)
 
 ## General Info
 print("There are {} words in the phonetic dictionary".format(len(phoneticDB.phones.keys())))
@@ -23,7 +23,6 @@ for test_word in test_words:
 	print("5 Nexts", nexts[:min(5, len(nexts))])
 
 
-SAVE_FREQ = 1000
 def test_graph(num_syllables, rhyme_word, max_poems):
 	word_graph = graph.TargetedGraph(phoneticDB, ngramDB, num_syllables, rhyme_word)
 
@@ -32,18 +31,15 @@ def test_graph(num_syllables, rhyme_word, max_poems):
 		for word_list in word_graph.populate_graph():
 			poem = " ".join(word_list).lower()
 			poems.append(poem)
-			if len(poems) % SAVE_FREQ == 0:
-				print("Saving Poems")
-				fp.write("\n".join(poems))
 			if len(poems) > max_poems:
-				return
+				break
 		fp.write("\n".join(poems))
 	## General Graph Info
 	print("There are {} vertices in the word graph".format(len(word_graph.vertices)))
 
 # TODO: Not the most effecient order to loop
-# test_graph(5, "FRIEND", 100)
-# for max_poems in (50000, 500000, 5000000):
-# 	for rhyme_word in test_words:
-# 		for num_syllables in (3, 5, 7):
-# 			test_graph(num_syllables, rhyme_word, max_poems)
+test_graph(5, "FRIEND", 100)
+for max_poems in (10000, 50000, 1000000):
+	for rhyme_word in test_words:
+		for num_syllables in (3, 5, 7):
+			test_graph(num_syllables, rhyme_word, max_poems)

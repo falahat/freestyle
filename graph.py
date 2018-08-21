@@ -110,7 +110,8 @@ class TargetedGraph(WordGraph):
 		result = [self.root_node.word]
 		curr_node = start_node
 		while curr_node is not None:
-			result.append(curr_node.word)
+			num_syllables = self.phonetic_db.num_syllables[curr_node.word]
+			result.append(" [{}] {}".format(num_syllables, curr_node.word))
 			curr_node = self.next_nodes.get(curr_node, None)
 		print(" ".join(result))
 		return result

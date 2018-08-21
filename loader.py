@@ -73,10 +73,15 @@ class PhoneticDB(object):
 		if word not in self.phones:
 			return None
 		phones = self.phones[word]
-		last_nonvowel_idx = -1; # Index of the last non-vowel. Everything after it is the last 
-		for i in range(len(phones)):
-			phone = phones[i]
-		last_sounds = phones[last_nonvowel_idx:]
+		last_vowel_idx = -1; # Beginning of the last vowel segment
+		is_vowel = [self.phone_types[phone] == "VOWEL" for phone in phones]
+		
+		is_start_of_vowel_segment = [is_vowel[0]] 
+		is_start_of_vowel_segment += [(is_vowel[i] and not is_vowel[i - 1]) for i in range(1, len(is_vowel))]
+		for i in range(len(is_start_of_vowel_segment)):
+			last_vowel_idx = i if is_start_of_vowel_segment[i] else last_vowel_idx
+
+		last_sounds = phones[last_vowel_idx:]
 		return tuple(last_sounds)
 
 	def extract_num_syllables(self, word):
