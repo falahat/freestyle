@@ -165,7 +165,7 @@ class NGramDB(object):
 		total = float(total)
 		counts =  sorted(counts.items(), key=lambda (w1w2, count): count)
 		trim_idx = (1-self.edge_trim_ratio)*len(counts) # Trim the last ratio*(total rows) rows
-		counts = counts[:trim_idx] 
+		counts = counts[:int(trim_idx)] 
 		for word1_word2, count in counts:
 			result[word1_word2] = count / total
 		return result
