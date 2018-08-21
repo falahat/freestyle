@@ -21,13 +21,13 @@ for test_word in test_words:
 	nexts = ngramDB.find_next(test_word) 
 	print("5 Nexts", nexts[:min(5, len(nexts))])
 
-# Let's create a sentence w/ 5 syllables that rhymes with "EVERLASTING"
-NUM_SYLLABLES = 3
-RHYME_WORD = "DUDE"
-ROOT_WORD = "YOU"
-ROOT_NODE = graph.WordNode(RHYME_WORD, NUM_SYLLABLES)
-
-word_graph = graph.RhymeTargetedGraph(phoneticDB, ngramDB, ROOT_NODE, RHYME_WORD)
+START_WORD = "HELLO"
+NUM_SYLLABLES = 5
+RHYME_WORD = "MAY"
+DESTINATION_NODES = set([graph.WordNode(word, 0) for word in phoneticDB.find_rhymes(RHYME_WORD)])
+print(DESTINATION_NODES)
+START_NODES = [graph.WordNode(START_WORD, NUM_SYLLABLES)]
+word_graph = graph.TargetedGraph(phoneticDB, ngramDB, START_NODES, DESTINATION_NODES)
 word_graph.populate_graph()
 
 ## General Graph Info

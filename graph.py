@@ -60,15 +60,16 @@ class WordGraph(WordGraphLazy):
 		# TODO: effeciently query the nodes. Possibly generate on demand?
 		pass;
 
-class RhymeTargetedGraph(WordGraph):
-	def __init__(self, phonetic_db, ngram_db, root_node, rhyme_word):
-		super(RhymeTargetedGraph, self).__init__(phonetic_db, ngram_db, root_node)
-		self.rhyme_word = rhyme_word
+class TargetedGraph(WordGraph):
+	def __init__(self, phonetic_db, ngram_db, start_nodes, destination_nodes):
+		super(TargetedGraph, self).__init__(phonetic_db, ngram_db, start_nodes[0])
+		self.start_nodes = start_nodes
+		self.destination_nodes = destination_nodes
 	
 	def is_node_valid(self, node):
-		if super(RhymeTargetedGraph, self).is_node_valid(node):
+		if super(TargetedGraph, self).is_node_valid(node):
 			if node.syllables_left == 0:
-				return self.phonetic_db.rhymes(self.rhyme_word, node.word)
+				return node in destination_nodes
 		return True
 
 class WordNode(object):
@@ -78,3 +79,9 @@ class WordNode(object):
 
 	def __str__(self):
 		return "({}, {})".format(self.word, self.syllables_left)
+
+	def __repr__(self):
+		return "WordNode({}, {})".format(self.word, self.syllables_left)
+
+	def __eq__(self, other):
+		return other.word == self.word and other.syllables_left == self.syllables_left
