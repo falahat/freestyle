@@ -1,0 +1,101 @@
+[friend : 5]  [2] attends  [1] a  [2] godsend
+[friend : 5]  [2] promised  [1] a  [2] godsend
+[friend : 5]  [2] acquires  [1] a  [2] godsend
+[friend : 5]  [2] settle  [1] a  [2] godsend
+[friend : 5]  [2] removes  [1] a  [2] godsend
+[friend : 5]  [2] fulfill  [1] a  [2] godsend
+[friend : 5]  [2] invest  [1] a  [2] godsend
+[friend : 5]  [2] format  [1] a  [2] godsend
+[friend : 5]  [2] appeal  [1] a  [2] godsend
+[friend : 5]  [1] own  [1] line  [1] a  [2] godsend
+[friend : 5]  [1] rail  [1] line  [1] a  [2] godsend
+[friend : 5]  [2] erect  [1] a  [2] godsend
+[friend : 5]  [1] bass  [1] line  [1] a  [2] godsend
+[friend : 5]  [1] star  [1] who  [1] a  [2] godsend
+[friend : 5]  [1] per  [1] team  [1] a  [2] godsend
+[friend : 5]  [1] cells  [1] per  [1] a  [2] godsend
+[friend : 5]  [1] twice  [1] per  [1] a  [2] godsend
+[friend : 5]  [1] client  [1] who  [1] a  [2] godsend
+[friend : 5]  [1] own  [1] team  [1] a  [2] godsend
+[friend : 5]  [1] your  [1] claims  [1] a  [2] godsend
+[friend : 5]  [1] nurse  [1] who  [1] a  [2] godsend
+[friend : 5]  [1] five  [1] states  [1] a  [2] godsend
+[friend : 5]  [2] namely  [1] a  [2] godsend
+[friend : 5]  [2] filling  [1] a  [2] godsend
+[friend : 5]  [2] deny  [1] a  [2] godsend
+[friend : 5]  [1] olds  [1] who  [1] a  [2] godsend
+[friend : 5]  [1] who  [1] die  [1] a  [2] godsend
+[friend : 5]  [2] attack  [1] a  [2] godsend
+[friend : 5]  [2] checking  [1] a  [2] godsend
+[friend : 5]  [2] commits  [1] a  [2] godsend
+[friend : 5]  [2] typing  [1] a  [2] godsend
+[friend : 5]  [2] instead  [1] a  [2] godsend
+[friend : 5]  [1] beings  [1] who  [1] a  [2] godsend
+[friend : 5]  [1] six  [1] per  [1] a  [2] godsend
+[friend : 5]  [2] coffee  [1] for  [2] weekend
+[friend : 5]  [2] pathway  [1] for  [2] weekend
+[friend : 5]  [2] barriers  [1] for  [2] weekend
+[friend : 5]  [2] obtains  [1] a  [2] godsend
+[friend : 5]  [2] worker  [1] for  [2] weekend
+[friend : 5]  [1] your  [1] claims  [1] a  [2] godsend
+[friend : 5]  [1] go  [1] bad  [1] a  [2] godsend
+[friend : 5]  [1] land  [1] claims  [1] a  [2] godsend
+[friend : 5]  [2] circuits  [1] for  [2] weekend
+[friend : 5]  [2] copied  [1] for  [2] weekend
+[friend : 5]  [2] heaven  [1] for  [2] weekend
+[friend : 5]  [2] basket  [1] for  [2] weekend
+[friend : 5]  [2] double  [1] for  [2] weekend
+[friend : 5]  [2] practice  [1] a  [2] godsend
+[friend : 5]  [2] speaking  [1] a  [2] godsend
+[friend : 5]  [2] welcome  [1] for  [2] weekend
+[friend : 5]  [1] be  [1] dressed  [1] for  [2] weekend
+[friend : 5]  [2] planted  [1] a  [2] godsend
+[friend : 5]  [1] band  [1] who  [1] a  [2] godsend
+[friend : 5]  [2] demo  [1] for  [2] weekend
+[friend : 5]  [2] segment  [1] for  [2] weekend
+[friend : 5]  [2] headphones  [1] for  [2] weekend
+[friend : 5]  [2] patience  [1] for  [2] weekend
+[friend : 5]  [2] sounded  [1] a  [2] godsend
+[friend : 5]  [2] training  [1] a  [2] godsend
+[friend : 5]  [2] applies  [1] a  [2] godsend
+[friend : 5]  [2] ireland  [1] for  [2] weekend
+[friend : 5]  [1] year  [1] per  [1] a  [2] godsend
+[friend : 5]  [2] sanctions  [1] for  [2] weekend
+[friend : 5]  [1] thin  [1] client  [1] a  [2] godsend
+[friend : 5]  [2] fabric  [1] for  [2] weekend
+[friend : 5]  [2] blackjack  [1] for  [2] weekend
+[friend : 5]  [2] repeat  [1] a  [2] godsend
+[friend : 5]  [2] combine  [1] a  [2] godsend
+[friend : 5]  [2] platforms  [1] for  [2] weekend
+[friend : 5]  [2] story  [1] a  [2] godsend
+[friend : 5]  [2] singles  [1] for  [2] weekend
+[friend : 5]  [2] insert  [1] for  [2] weekend
+[friend : 5]  [2] nutrients  [1] for  [2] weekend
+[friend : 5]  [2] mother  [1] for  [2] weekend
+[friend : 5]  [2] apart  [1] for  [2] weekend
+[friend : 5]  [1] teens  [1] who  [1] a  [2] godsend
+[friend : 5]  [2] artist  [1] for  [2] weekend
+[friend : 5]  [2] expects  [1] a  [2] godsend
+[friend : 5]  [2] public  [1] a  [2] godsend
+[friend : 5]  [2] nightmare  [1] for  [2] weekend
+[friend : 5]  [2] matches  [1] a  [2] godsend
+[friend : 5]  [1] no  [1] friends  [1] a  [2] godsend
+[friend : 5]  [2] scotland  [1] for  [2] weekend
+[friend : 5]  [2] banner  [1] for  [2] weekend
+[friend : 5]  [2] operate  [1] for  [2] weekend
+[friend : 5]  [2] matching  [1] a  [2] godsend
+[friend : 5]  [1] fan  [1] who  [1] a  [2] godsend
+[friend : 5]  [2] trading  [1] for  [2] weekend
+[friend : 5]  [2] constants  [1] for  [2] weekend
+[friend : 5]  [2] era  [1] for  [2] weekend
+[friend : 5]  [2] mirror  [1] for  [2] weekend
+[friend : 5]  [2] dating  [1] a  [2] godsend
+[friend : 5]  [2] happens  [1] for  [2] weekend
+[friend : 5]  [2] compressed  [1] for  [2] weekend
+[friend : 5]  [2] commerce  [1] for  [2] weekend
+[friend : 5]  [2] gallery  [1] a  [2] godsend
+[friend : 5]  [2] python  [1] for  [2] weekend
+[friend : 5]  [2] exceeds  [1] a  [2] godsend
+[friend : 5]  [2] picture  [1] a  [2] godsend
+[friend : 5]  [2] movies  [1] a  [2] godsend
+[friend : 5]  [2] tender  [1] for  [2] weekend

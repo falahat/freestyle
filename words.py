@@ -2,7 +2,7 @@ import loader
 import graph
 
 phoneticDB = loader.PhoneticDB()
-ngramDB = loader.NGramDB(edge_trim_ratio=0.8)
+ngramDB = loader.NGramDB(edge_trim_ratio=0.5)
 
 ## General Info
 print("There are {} words in the phonetic dictionary".format(len(phoneticDB.phones.keys())))
@@ -10,32 +10,36 @@ print("There are {} rhyme endings in the phonetic dictionary".format(len(phoneti
 print("There are {} 2-gram pairs".format(len(ngramDB.word_pairs.keys())))
 
 ## Do some manual inspection with test words
-test_words = ["HELLO", "HOWDY", "FRIEND", "THANK", "EVERLASTING"]
-test_words = []
+test_words = ["HELLO", "ANDY", "HOWDY", "FRIEND", "THANK", "EVERLASTING"]
+# test_words = []
 for test_word in test_words:
 	print("\n###")
 	print(test_word)
+	print("Rhyme sound", phoneticDB.extract_rhyme(test_word))
 	print("Sum Syllables", phoneticDB.num_syllables[test_word])
 	rhymes = phoneticDB.find_rhymes(test_word) 
 	print("5 Rhymes", rhymes[:min(5, len(rhymes))])
 	nexts = ngramDB.find_next(test_word) 
 	print("5 Nexts", nexts[:min(5, len(nexts))])
 
-# START_WORD = "HELLO"
-NUM_SYLLABLES = 5
-RHYME_WORD = "MAY"
-DESTINATION_NODES = set([graph.WordNode(word, 0) for word in phoneticDB.find_rhymes(RHYME_WORD)])
-print(DESTINATION_NODES)
-word_graph = graph.TargetedGraph(phoneticDB, ngramDB, NUM_SYLLABLES, DESTINATION_NODES)
 
-SAVE_FREQ = 1000
-with open("examples/targeted.txt", "w") as fp:
-	poems = []
-	for word_list in word_graph.populate_graph():
-		poem = " ".join(word_list).lower()
-		poems.append(poem)
-		if len(poems) % SAVE_FREQ == 0:
-			print("Saving Poems")
-			fp.write("\n".join(poems))
-## General Graph Info
-print("There are {} vertices in the word graph".format(len(word_graph.vertices)))
+def test_graph(num_syllables, rhyme_word, max_poems):
+	word_graph = graph.TargetedGraph(phoneticDB, ngramDB, num_syllables, rhyme_word)
+
+	with open("examples/targeted_{}_{}_{}.txt".format(rhyme_word, num_syllables, max_poems), "w") as fp:
+		poems = []
+		for word_list in word_graph.populate_graph():
+			poem = " ".join(word_list).lower()
+			poems.append(poem)
+			if len(poems) > max_poems:
+				break
+		fp.write("\n".join(poems))
+	## General Graph Info
+	print("There are {} vertices in the word graph".format(len(word_graph.vertices)))
+
+# TODO: Not the most effecient order to loop
+test_graph(5, "FRIEND", 100)
+for max_poems in (10000, 50000, 1000000):
+	for rhyme_word in test_words:
+		for num_syllables in (3, 5, 7):
+			test_graph(num_syllables, rhyme_word, max_poems)
